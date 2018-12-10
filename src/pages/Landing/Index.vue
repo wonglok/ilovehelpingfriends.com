@@ -5,7 +5,7 @@
       <button @click="reload">reload</button>
 
       <div class="center">
-        <div :key="item.id" class="card" v-for="item in items" ref="itemset">
+        <div :key="item.id" class="card" v-for="item in items" ref="card">
           {{ item.letter }}
         </div>
       </div>
@@ -46,16 +46,30 @@ export default {
       // widther.style.height = `1px`
       let tl = this.tl = anime.timeline()
       let step1 = {
-        targets: this.$refs['itemset']
+        targets: this.$refs['card']
       }
-
       tl.add({
+        ...step1,
+        opacity: 0,
+        fontSize (el, i, n) {
+          return (spaceR.width / n * 1.4) + 'px'
+        },
+        elasticity: 50,
+        translateX () {
+          return anime.random(1.0 * -window.innerWidth, 1.0 * window.innerWidth)
+        },
+        translateY () {
+          return anime.random(1.0 * -window.innerHeight, 1.0 * window.innerHeight)
+        },
+        duration: 0
+      })
+      let step2 = {
         ...step1,
         opacity: 1,
         elasticity: 50,
         translateY: -250 + spaceR.height * -0.2,
         translateX (el, i, n) {
-          return (i - 0.5 * n) / n * (n * 50)
+          return (i - 0.5 * n) / n * (n * spaceR.width / n * 0.8)
         },
         rotateZ (el, i, n) {
           return (i - 0.5 * n) / n * 67
@@ -67,6 +81,16 @@ export default {
           return i * 50
         },
         duration: 1500
+      }
+      tl.add(step2)
+      tl.add({
+        ...step2,
+        rotateZ: 0 + 'deg',
+        elasticity: 500,
+        delay: (el, i, n) => {
+          return i * 50
+        },
+        duration: 1000
       })
     },
     reload () {
@@ -88,7 +112,7 @@ export default {
 
 .card{
   font-family: monospace;
-  font-size: 100%;
+  font-size: 70px;
   opacity: 0;
   position: absolute;
   bottom: 0;
